@@ -1,0 +1,429 @@
+/* Urban Travel Journal — layout variants A / B / C */
+
+.jl {
+  max-width: 660px;
+  margin: 0 auto;
+}
+
+.jl-mono {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.jl-accent-tag {
+  color: #c8523a;
+}
+
+.jl-field-label {
+  color: #c8523a;
+  letter-spacing: 0.22em;
+  margin-bottom: 10px;
+}
+
+.jl-caveat {
+  font-family: "Caveat", cursive;
+}
+
+/* —— A Minimal Editorial —— */
+.jl-a {
+  background: #fff;
+  padding: 28px 36px 36px;
+}
+
+.jl-a-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.jl-muted {
+  color: #7a6f65;
+}
+
+.jl-rule {
+  height: 1px;
+  background: rgba(26, 22, 20, 0.1);
+  margin-top: 10px;
+}
+
+.jl-rule-spaced {
+  margin: 18px 0;
+}
+
+.jl-a-title {
+  font-family: "Playfair Display", serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.12;
+  color: #1a1614;
+  margin: 14px 0 6px;
+}
+
+.jl-coords {
+  color: #7a6f65;
+  margin: 0 0 18px;
+}
+
+.jl-a-hero {
+  margin: 0 0 18px;
+}
+
+.jl-a-hero img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  display: block;
+  box-shadow: inset 0 0 0 1px rgba(26, 22, 20, 0.1);
+}
+
+.jl-a-hero figcaption {
+  margin-top: 8px;
+  color: #7a6f65;
+}
+
+.jl-a-summary {
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: rgba(26, 22, 20, 0.8);
+  margin: 0 0 20px;
+}
+
+.jl-a-notes ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.jl-a-notes li {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(26, 22, 20, 0.7);
+  margin-bottom: 8px;
+}
+
+.jl-dash {
+  color: #c8523a;
+  flex-shrink: 0;
+}
+
+.jl-a-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding-top: 16px;
+}
+
+.jl-a-grid img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.jl-a-grid figcaption {
+  margin-top: 6px;
+  color: #7a6f65;
+}
+
+/* —— B Scrapbook —— */
+.jl-b {
+  background: #fef9f0;
+  padding: 28px 26px 36px;
+  position: relative;
+}
+
+.jl-b-sticker {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: #c8523a;
+  color: #fff;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  transform: rotate(4deg);
+}
+
+.jl-b-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffd166;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  transform: rotate(-1deg);
+  margin-bottom: 16px;
+}
+
+.jl-b-polaroid-main {
+  margin: 0 0 12px;
+  transform: rotate(-1.4deg);
+}
+
+.jl-b-tape {
+  position: absolute;
+  width: 52px;
+  height: 18px;
+  background: rgba(245, 232, 192, 0.9);
+  top: -10px;
+  z-index: 2;
+}
+
+.jl-b-tape-l {
+  left: 28px;
+  transform: rotate(-1deg);
+}
+
+.jl-b-tape-r {
+  right: 28px;
+  transform: rotate(2deg);
+}
+
+.jl-b-polaroid {
+  position: relative;
+}
+
+.jl-b-photo-wrap {
+  background: #fff;
+  padding: 8px 8px 28px;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.14);
+}
+
+.jl-b-photo-wrap.sm {
+  padding-bottom: 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.jl-b-photo-wrap img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  display: block;
+}
+
+.jl-b-polaroid figcaption {
+  text-align: center;
+  font-size: 15px;
+  color: #7a6f65;
+  margin-top: 6px;
+}
+
+.jl-b-title {
+  margin: 16px 0 6px;
+}
+
+.jl-b-highlight {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  font-weight: 700;
+  background: #ffd166;
+  padding: 2px 8px;
+  box-decoration-break: clone;
+}
+
+.jl-b-tagline {
+  color: #c8523a;
+  font-size: 15px;
+  margin: 0 0 14px;
+}
+
+.jl-b-summary {
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #3d3530;
+  margin-bottom: 16px;
+}
+
+.jl-b-hl-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #3d3530;
+}
+
+.jl-b-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.jl-b-tilt-l {
+  transform: rotate(1.2deg);
+}
+
+.jl-b-tilt-r {
+  transform: rotate(-1.8deg);
+  margin-top: 14px;
+}
+
+.jl-b-coords {
+  text-align: right;
+  margin-top: 20px;
+  color: #7a6f65;
+  font-size: 13px;
+}
+
+/* —— C Cinematic —— */
+.jl-c {
+  background: #0c0a08;
+  overflow: hidden;
+}
+
+.jl-c-hero {
+  position: relative;
+  height: 320px;
+  background: #1a1614;
+}
+
+.jl-c-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+}
+
+.jl-c-hero-fallback {
+  width: 100%;
+  height: 100%;
+  background: #2a2520;
+}
+
+.jl-c-hero-grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12, 10, 8, 0.7), transparent 40%, #0c0a08);
+  pointer-events: none;
+}
+
+.jl-c-hero-top,
+.jl-c-hero-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: 0 24px;
+  z-index: 2;
+}
+
+.jl-c-hero-top {
+  top: 18px;
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.jl-accent-dot {
+  color: #c8523a;
+}
+
+.jl-c-hero-title {
+  bottom: 20px;
+}
+
+.jl-c-loc {
+  color: #c8523a;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.jl-c-hero-title h1 {
+  font-family: "Playfair Display", serif;
+  font-size: 46px;
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
+  line-height: 1;
+  margin: 0;
+}
+
+.jl-c-body {
+  display: grid;
+  grid-template-columns: 1fr 168px;
+}
+
+.jl-c-main {
+  padding: 22px 24px 28px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.jl-c-summary {
+  font-size: 12.5px;
+  line-height: 1.82;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 0 0 18px;
+}
+
+.jl-c-notes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.jl-c-notes li {
+  display: flex;
+  gap: 10px;
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.52);
+  margin-bottom: 10px;
+}
+
+.jl-c-notes li span {
+  color: rgba(200, 82, 58, 0.7);
+  flex-shrink: 0;
+}
+
+.jl-c-coords {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.jl-c-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.jl-c-side figure {
+  position: relative;
+  flex: 1;
+  min-height: 120px;
+  margin: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.jl-c-side img {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  object-fit: cover;
+  opacity: 0.65;
+  display: block;
+}
+
+.jl-c-side figcaption {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  right: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 9px;
+}
+
+.jl-c-foot {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 9px;
+}

@@ -11,7 +11,8 @@
 
 | 变量 | 说明 |
 |------|------|
-| `OPENAI_API_KEY` | 仅在使用 `/generate-narrative` 时需要 |
+| `DEEPSEEK_API_KEY` | 叙事分析、百科文案、视觉关键词、旅行日志 |
+| `PEXELS_API_KEY` | 百科配图：DeepSeek 生成检索词 → Pexels Search |
 | `PORT` | 默认 `3040`（与前端 Vite 代理一致） |
 | `OSRM_BASE_URL` | 可选；默认公共 OSRM |
 | `STUDY_CENTER_LAT` / `STUDY_CENTER_LON` / `STUDY_RADIUS_KM` / `STUDY_LABEL` | 可选；默认东方明珠、`2` km |
