@@ -1,11 +1,7 @@
-import OpenAI from "openai";
+import { getLLMClient, getLLMModel, friendlyLLMError } from "../utils/llmClient.js";
 
 function getClient() {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) {
-    throw new Error("未配置 OPENAI_API_KEY");
-  }
-  return new OpenAI({ apiKey: key });
+  return getLLMClient();
 }
 
 /**
@@ -42,23 +38,28 @@ function summarizeTags(tags) {
   return parts.slice(0, 8).join("; ");
 }
 
-async function chatJson(client, system, user, { model = "gpt-4o-mini", temperature = 0.6 } = {}) {
-  const completion = await client.chat.completions.create({
-    model,
-    temperature,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: system },
-      { role: "user", content: user },
-    ],
-  });
+async function chatJson(client, system, user, { model = getLLMModel(), temperature = 0.6 } = {}) {
+  let completion;
+  try {
+    completion = await client.chat.completions.create({
+      model,
+      temperature,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+    });
+  } catch (e) {
+    throw new Error(friendlyLLMError(e));
+  }
 
   const text = completion.choices[0]?.message?.content;
-  if (!text) throw new Error("OpenAI 返回为空");
+  if (!text) throw new Error("大模型返回为空");
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error("OpenAI 返回非合法 JSON");
+    throw new Error("大模型返回非合法 JSON");
   }
 }
 
@@ -68,6 +69,7 @@ async function chatJson(client, system, user, { model = "gpt-4o-mini", temperatu
 export async function generateNarrativeThemes(context) {
   const client = getClient();
   const system = `你是城市文化研究者。根据给定地理区域与 POI 名称列表（原始材料），提出 1~3 个可辩论的「城市叙事主题」标题。
+若输入含 route_context，可结合沿路移动中的城市阅读视角。
 要求：主题应体现空间、历史、权力、消费、全球化等维度之一或多者；不要写成旅游广告口号；不要虚构具体史实数字。
 只输出 JSON：{"themes": string[] }`;
 
@@ -104,6 +106,63 @@ export async function scorePoisForTheme(theme, slimPois) {
   const out = await chatJson(client, system, user, { temperature: 0.4 });
   const items = Array.isArray(out.items) ? out.items : [];
   return items;
+}
+
+/** 沿路廊道 POI：主题 + 语义筛选（不调 OSRM） */
+export async function runNarrativeAnalysisForRoute({
+  areaLabel,
+  bbox_query,
+  pois,
+  routeContext,
+  maxPoisForLlm = 120,
+}) {
+  if (!Array.isArray(pois) || pois.length === 0) {
+    throw new Error("该区域未查询到带名称的 POI，无法生成叙事主题");
+  }
+
+  const slim = slimPoisForLlm(pois, maxPoisForLlm);
+  const themes = await generateNarrativeThemes({
+    area_label: areaLabel || "指定区域",
+    bbox: bbox_query,
+    poi_names_preview: slim.map((p) => p.name).slice(0, 50),
+    poi_count: pois.length,
+    note: "POI 来自用户已规划车行路线周边的 Overpass 廊道 bbox。",
+    route_context: routeContext || null,
+  });
+
+  const theme = themes[0];
+  const scored = await scorePoisForTheme(theme, slim);
+  const scoreByRef = new Map(scored.map((s) => [String(s.ref_id), s]));
+  const poisById = new Map(pois.map((p) => [p.id, p]));
+
+  const pois_analyzed = slim.map((sp) => {
+    const full = poisById.get(sp.ref_id);
+    const s = scoreByRef.get(String(sp.ref_id)) || {
+      important: false,
+      importance_score: 0,
+      narrative_role: "未由模型标注",
+      cultural_tags: [],
+    };
+    return {
+      id: sp.ref_id,
+      name: sp.name,
+      lat: sp.lat,
+      lon: sp.lon,
+      tags: full?.tags ? { ...full.tags } : {},
+      important: Boolean(s.important),
+      importance_score: clampInt(s.importance_score, 0, 10),
+      narrative_role: String(s.narrative_role || ""),
+      cultural_tags: Array.isArray(s.cultural_tags) ? s.cultural_tags.map(String) : [],
+    };
+  });
+
+  return {
+    theme,
+    themes,
+    bbox_query,
+    poi_count: pois.length,
+    pois_analyzed,
+  };
 }
 
 /**

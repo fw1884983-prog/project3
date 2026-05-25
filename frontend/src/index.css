@@ -1,6 +1,17 @@
 :root {
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --accent: #e8601c;
+  --accent-light: #fff3ee;
+  --accent-hover: #d45518;
+  --footer-bg: #1d2027;
+  --footer-border: #2a2d35;
+  --text-primary: #1f2937;
+  --text-muted: #9ca3af;
+  --border: #f3f4f6;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -14,4 +25,6 @@ body,
   height: 100%;
   width: 100%;
   overflow: hidden;
+  color: var(--text-primary);
+  background: #fff;
 }

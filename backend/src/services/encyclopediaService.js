@@ -75,6 +75,98 @@ export async function buildPoiEncyclopediaCard({
   return card;
 }
 
+/**
+ * 用户将关键词拖入百科区后：基于关键词 + 已有材料生成「新一版」百科卡片（文字由 LLM，图片来自公开网页）。
+ */
+export async function expandEncyclopediaFromKeywords({
+  poi,
+  keywords = [],
+  base_card = null,
+  theme = null,
+  collected_notes = [],
+}) {
+  if (!poi?.name) throw new Error("缺少 POI 名称");
+  const kws = [...new Set((keywords || []).map(String).filter(Boolean))].slice(0, 12);
+  if (kws.length === 0) throw new Error("请至少提供一个关键词");
+
+  const lat = Number(poi.lat);
+  const lon = Number(poi.lon);
+  const web =
+    base_card?.image_gallery?.length > 0
+      ? {
+          snippets: (base_card.sources || []).map((s) => ({
+            source: "已有卡片",
+            title: s.title,
+            url: s.url,
+            text: base_card.cultural_summary || "",
+          })),
+          images: base_card.image_gallery.map((g) => ({
+            url: g.url,
+            caption: g.caption,
+            credit: g.credit || "Archive",
+          })),
+          sources: base_card.sources || [],
+        }
+      : await fetchPublicWebArchive({
+          name: String(poi.name),
+          lat: Number.isFinite(lat) ? lat : null,
+          lon: Number.isFinite(lon) ? lon : null,
+        });
+
+  const card = await formatKeywordExpandedCard({
+    poi,
+    theme,
+    keywords: kws,
+    collected_notes,
+    web,
+    base_card,
+  });
+  card.meta = { ...(card.meta || {}), expanded_from_keywords: kws, variant: "keyword-expanded" };
+  return card;
+}
+
+async function formatKeywordExpandedCard({ poi, theme, keywords, collected_notes, web, base_card }) {
+  const client = getClient();
+  const system = `你是城市文化百科编辑。用户沿路线采集了关键词并拖入百科面板，请围绕这些关键词重写一版「展开式」百科卡片 JSON。
+要求：以关键词为叙事线索组织全文；综合公开网页摘录与已有卡片；中文、有杂志感；image_gallery 仅使用输入中的 url。
+结构同标准百科卡片：title, subtitle, keywords, cultural_summary, sections{...}, timeline_snippets, related_nearby, image_gallery, sources。`;
+
+  const userPayload = {
+    focus_keywords: keywords,
+    poi: { name: poi.name, lat: poi.lat, lon: poi.lon },
+    route_theme: theme,
+    prior_card: base_card
+      ? {
+          title: base_card.title,
+          summary: base_card.cultural_summary,
+          keywords: base_card.keywords,
+        }
+      : null,
+    traveler_notes: collected_notes,
+    web_snippets: web.snippets,
+    candidate_images: web.images,
+  };
+
+  let completion;
+  try {
+    completion = await client.chat.completions.create({
+      model: getLLMModel(),
+      temperature: 0.62,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: JSON.stringify(userPayload) },
+      ],
+    });
+  } catch (e) {
+    throw new Error(friendlyLLMError(e));
+  }
+
+  const text = completion.choices[0]?.message?.content;
+  if (!text) throw new Error("关键词展开失败");
+  return normalizeCard(JSON.parse(text), web, poi);
+}
+
 async function formatEncyclopediaWithLlm({
   poi,
   theme,

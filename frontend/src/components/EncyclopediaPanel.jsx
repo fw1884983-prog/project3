@@ -1,129 +1,119 @@
-export default function EncyclopediaPanel({ card, poi, loading, error, onClose }) {
-  if (!card && !loading && !error) return null;
+import { MIME, setDragData } from "../journeyDrag.js";
+
+export default function EncyclopediaPanel({
+  visible,
+  card,
+  poi,
+  loading,
+  expandLoading,
+  error,
+  onDropKeyword,
+}) {
+  if (!visible && !loading && !expandLoading) return null;
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const raw = e.dataTransfer.getData(MIME.KEYWORD);
+    if (!raw) return;
+    try {
+      const { keyword } = JSON.parse(raw);
+      if (keyword) onDropKeyword?.(keyword);
+    } catch {
+      /* ignore */
+    }
+  };
 
   return (
-    <aside className="encyclopedia-panel" aria-live="polite">
-      <header className="ency-header">
-        <div className="ency-badge" aria-hidden />
-        <div className="ency-header-text">
-          {loading ? (
-            <h2 className="ency-title">正在编织城市记忆…</h2>
-          ) : (
-            <>
-              <h2 className="ency-title">{card?.title || poi?.name || "城市百科"}</h2>
-              {card?.subtitle ? <p className="ency-subtitle">{card.subtitle}</p> : null}
-            </>
-          )}
-        </div>
-        <button type="button" className="ency-close" onClick={onClose} aria-label="关闭">
-          ×
-        </button>
+    <aside
+      className={`ency-popup${visible ? " is-visible" : ""}`}
+      aria-live="polite"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <header className="ency-popup-head">
+        <h2>{loading || expandLoading ? "编织档案…" : card?.title || poi?.name || "城市百科"}</h2>
+        <p className="ency-drop-hint">拖入左侧关键词以展开新一版百科档案</p>
       </header>
 
       {error ? <p className="ency-error">{error}</p> : null}
 
-      {loading ? (
+      {loading || expandLoading ? (
         <div className="ency-skeleton">
           <div className="sk-line sk-wide" />
           <div className="sk-line" />
-          <div className="sk-line sk-short" />
         </div>
       ) : card ? (
-        <div className="ency-body">
-          {card.keywords?.length > 0 ? (
-            <div className="ency-keywords">
-              {card.keywords.map((kw) => (
-                <span key={kw} className="ency-kw">
-                  {kw}
-                </span>
+        <div className="ency-popup-body">
+          {card.cultural_summary ? (
+            <p
+              className="ency-draggable-text"
+              draggable
+              onDragStart={(e) =>
+                setDragData(e, MIME.TEXT, {
+                  title: card.title,
+                  text: card.cultural_summary,
+                })
+              }
+            >
+              {card.cultural_summary}
+            </p>
+          ) : null}
+
+          {card.image_gallery?.length > 0 ? (
+            <div className="ency-img-grid">
+              {card.image_gallery.map((img, i) => (
+                <figure
+                  key={img.url || i}
+                  className="ency-img-tile"
+                  draggable
+                  onDragStart={(e) =>
+                    setDragData(e, MIME.IMAGE, {
+                      url: img.url,
+                      caption: img.caption,
+                    })
+                  }
+                >
+                  <img src={img.url} alt={img.caption || ""} loading="lazy" />
+                  <figcaption>{img.caption}</figcaption>
+                </figure>
               ))}
             </div>
           ) : null}
 
-          {card.cultural_summary ? (
-            <section className="ency-section ency-lead">
-              <h3>文化概览</h3>
-              <p>{card.cultural_summary}</p>
-            </section>
-          ) : null}
-
-          {card.image_gallery?.length > 0 ? (
-            <section className="ency-section">
-              <h3>影像档案</h3>
-              <Gallery images={card.image_gallery} />
-            </section>
-          ) : null}
-
-          <Section title="历史背景" text={card.sections?.historical_background} />
-          <Section title="建筑与城市身份" text={card.sections?.architecture_urban_identity} />
-          <Section title="地方故事" text={card.sections?.notable_stories} />
-          <Section title="在地认同" text={card.sections?.local_identity} />
-          <Section title="旅行印象" text={card.sections?.travel_impressions} />
-          <Section title="氛围与感受" text={card.sections?.atmosphere} />
-
-          {card.timeline_snippets?.length > 0 ? (
-            <section className="ency-section">
-              <h3>时间片段</h3>
-              <ul className="ency-timeline">
-                {card.timeline_snippets.map((t, i) => (
-                  <li key={`${t.period}-${i}`}>
-                    <span className="ency-time-period">{t.period}</span>
-                    <span className="ency-time-event">{t.event}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          {card.related_nearby?.length > 0 ? (
-            <section className="ency-section">
-              <h3>附近相关地点</h3>
-              <ul className="ency-nearby">
-                {card.related_nearby.map((r) => (
-                  <li key={r.name}>
-                    <strong>{r.name}</strong>
-                    <span>{r.note}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          {card.sources?.length > 0 ? (
-            <footer className="ency-sources">
-              <span className="ency-sources-label">参考来源</span>
-              {card.sources.map((s) => (
-                <a key={s.url || s.title} href={s.url} target="_blank" rel="noreferrer noopener">
-                  {s.title || s.url}
-                </a>
-              ))}
-            </footer>
-          ) : null}
+          <DraggableSection title="历史" text={card.sections?.historical_background} cardTitle={card.title} />
+          <DraggableSection title="城市身份" text={card.sections?.architecture_urban_identity} cardTitle={card.title} />
+          <DraggableSection title="故事" text={card.sections?.notable_stories} cardTitle={card.title} />
+          <DraggableSection title="氛围" text={card.sections?.atmosphere} cardTitle={card.title} />
         </div>
-      ) : null}
+      ) : (
+        <p className="ency-placeholder">靠近路线上的地点以唤起百科</p>
+      )}
     </aside>
   );
 }
 
-function Section({ title, text }) {
+function DraggableSection({ title, text, cardTitle }) {
   if (!text?.trim()) return null;
   return (
-    <section className="ency-section">
+    <section className="ency-mini-section">
       <h3>{title}</h3>
-      <p>{text}</p>
+      <p
+        className="ency-draggable-text"
+        draggable
+        onDragStart={(e) =>
+          setDragData(e, MIME.TEXT, {
+            title: `${cardTitle} · ${title}`,
+            text,
+          })
+        }
+      >
+        {text}
+      </p>
     </section>
-  );
-}
-
-function Gallery({ images }) {
-  return (
-    <div className="ency-gallery">
-      {images.map((img, i) => (
-        <figure key={img.url || i} className="ency-gallery-item">
-          <img src={img.url} alt={img.caption || ""} loading="lazy" />
-          {img.caption ? <figcaption>{img.caption}</figcaption> : null}
-        </figure>
-      ))}
-    </div>
   );
 }

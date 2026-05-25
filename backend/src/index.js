@@ -19,6 +19,10 @@ app.listen(PORT, () => {
   console.log(`Urban Narrative API listening on http://localhost:${PORT}`);
   console.log("  GET  /study-config");
   console.log("  POST /plan-driving-route");
+  console.log("  POST /narrative-for-route");
+  console.log("  POST /narrative-encyclopedia");
+  console.log("  POST /narrative-encyclopedia-expand");
+  console.log("  POST /journey-log-settle");
   console.log("  POST /fetch-poi");
   console.log("  POST /generate-narrative");
 });

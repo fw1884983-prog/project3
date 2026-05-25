@@ -1,6 +1,5 @@
 import { computeBoundingBox } from "../utils/bbox.js";
-
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+import { postOverpass } from "./overpassClient.js";
 
 /**
  * 构建 Overpass QL：在 bbox 内拉取带名称的 POI（旅游、历史、博物馆、纪念物、建筑等）。
@@ -79,32 +78,20 @@ function normalizeElements(elements) {
  * @param {number} radiusKm
  * @returns {Promise<{ bbox: object, pois: Array<{id,name,lat,lon,tags}> }>}
  */
+async function runOverpassQuery(bbox) {
+  const query = buildOverpassQuery(bbox.south, bbox.west, bbox.north, bbox.east);
+  const json = await postOverpass(query);
+  return normalizeElements(json.elements);
+}
+
 export async function fetchPoisInRadius(lat, lon, radiusKm) {
   const bbox = computeBoundingBox(lat, lon, radiusKm);
-  const query = buildOverpassQuery(bbox.south, bbox.west, bbox.north, bbox.east);
+  const pois = await runOverpassQuery(bbox);
+  return { bbox, pois };
+}
 
-  let res;
-  try {
-    res = await fetch(OVERPASS_URL, {
-      method: "POST",
-      body: `data=${encodeURIComponent(query)}`,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "UrbanNarrativeGenerator/1.0 (MVP)",
-      },
-    });
-  } catch (e) {
-    const msg = e?.cause?.code || e?.message || String(e);
-    throw new Error(`无法连接 Overpass API：${msg}。请检查网络或稍后重试。`);
-  }
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Overpass 请求失败: ${res.status} ${text.slice(0, 200)}`);
-  }
-
-  const json = await res.json();
-  const pois = normalizeElements(json.elements);
-
+/** 廊道 bbox 内 POI（沿路叙事用） */
+export async function fetchPoisInBbox(bbox) {
+  const pois = await runOverpassQuery(bbox);
   return { bbox, pois };
 }

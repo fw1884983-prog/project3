@@ -4,6 +4,10 @@ import react from "@vitejs/plugin-react";
 const apiProxy = {
   "/study-config": { target: "http://localhost:3040", changeOrigin: true },
   "/plan-driving-route": { target: "http://localhost:3040", changeOrigin: true },
+  "/narrative-for-route": { target: "http://localhost:3040", changeOrigin: true },
+  "/narrative-encyclopedia": { target: "http://localhost:3040", changeOrigin: true },
+  "/narrative-encyclopedia-expand": { target: "http://localhost:3040", changeOrigin: true },
+  "/journey-log-settle": { target: "http://localhost:3040", changeOrigin: true },
   "/fetch-poi": { target: "http://localhost:3040", changeOrigin: true },
   "/generate-narrative": { target: "http://localhost:3040", changeOrigin: true },
   "/health": { target: "http://localhost:3040", changeOrigin: true },
